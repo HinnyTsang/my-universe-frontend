@@ -55,7 +55,7 @@ const Test = () => {
 
     const handlerSwitchUser = useCallback(() => {
         setIsOtherUser(!isOtherUser)
-    }, [])
+    }, [isOtherUser])
 
 
     useHotkeys([
