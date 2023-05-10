@@ -10,11 +10,16 @@
   },
   "dependencies": {
     "@emotion/cache": "latest",
-    "@emotion/react": "latest",
-    "@emotion/server": "latest",
+    "@emotion/react": "^11.11.0",
+    "@emotion/server": "^11.11.0",
     "@emotion/styled": "latest",
+    "@hookform/resolvers": "^3.1.0",
+    "@mantine/core": "^6.0.10",
+    "@mantine/hooks": "^6.0.10",
+    "@mantine/next": "^6.0.10",
     "@mui/icons-material": "latest",
     "@mui/material": "latest",
+    "@tabler/icons-react": "^2.17.0",
     "@types/node": "18.15.11",
     "@types/react": "18.0.35",
     "@types/react-dom": "18.0.11",
@@ -25,7 +30,9 @@
     "postcss": "8.4.21",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-hook-form": "^7.43.9",
     "tailwindcss": "3.3.1",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "yup": "^1.1.1"
   }
 }
