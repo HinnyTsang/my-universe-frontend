@@ -11,6 +11,9 @@ export const NavBarTemp = () => {
                 <Link href="/test">Test</Link>
             </li>
             <li>
+                <Link href="/ChatComponent">ChatComponent</Link>
+            </li>
+            <li>
                 <Link href="/testRender">testRender</Link>
             </li>
         </ul>

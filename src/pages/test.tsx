@@ -1,5 +1,5 @@
 import { NavBarTemp } from '@/navbar/NavBarTemp'
-import { Box, Button, Center, Divider, Flex, Paper, Textarea, Text, useMantineTheme, ScrollArea, Tooltip, Stack, Input, Grid, Navbar, Switch } from '@mantine/core'
+import { Box, Button, Center, Divider, Flex, Paper, Textarea, Text, useMantineTheme, ScrollArea, Tooltip, Stack, Input, Grid, Navbar, Switch, Group } from '@mantine/core'
 import { getHotkeyHandler, useElementSize, useHotkeys, useScrollIntoView, useWindowScroll } from '@mantine/hooks'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
@@ -28,17 +28,13 @@ const Test = () => {
 
 
     const [submittedData, setSubmittedData] = useState<ChatData[]>([]);
-    const { handleSubmit, control, resetField } = useForm<FormData>({
+    const { handleSubmit, control, resetField, setFocus } = useForm<FormData>({
         resolver: yupResolver(schema),
         defaultValues: {
             text: "",
         },
     });
 
-
-    const handleReset = useCallback(() =>
-        resetField("text"), []
-    )
 
     const onSubmit = useCallback((data: FormData) => {
         const obj: ChatData = {
@@ -49,7 +45,7 @@ const Test = () => {
         console.log(obj);
 
         setSubmittedData([...submittedData, obj]);
-        handleReset()
+        resetField("text")
     }, [submittedData, isOtherUser])
 
 
@@ -74,9 +70,11 @@ const Test = () => {
     useEffect(() => {
         scrollToBottom()
     }, [submittedData])
-    //---------------------------------------------
+    // ----------------------------------------------
 
-
+    useEffect(() => {
+        setFocus('text')
+    }, [isOtherUser])
 
     return (
         <>
@@ -90,77 +88,81 @@ const Test = () => {
                 />
 
             </Center>
-
-            <Center display={'flex'} >
-                <Navbar height={height} p="xs" width={{ base: '40vw' }} bg={theme.colors.gray[4]}
-                    sx={{ borderTopLeftRadius: 10 }}
-                >
-                    <Navbar.Section mt="xs" >
-                        <Stack align='center'>
-                            <Box>Contact List</Box>
-
-                        </Stack>
-                    </Navbar.Section>
-
-                    <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs" type='never'>
-                        <Stack align='center'>
-                            {/* {
-                                submittedData.map((value, index) => {
-                                    return (
-                                        <Paper key={index} w={'35vw'} shadow="xs" p="sm" withBorder sx={{ display: 'flex', alignItems: 'center' }} radius={8}>
-                                            <Text sx={{ wordWrap: 'break-word' }} color='dark'>{value.text}</Text>
-                                        </Paper>
-                                    )
-                                })
-                            } */}
-                        </Stack>
-                    </Navbar.Section>
-
-                    <Navbar.Section>{/* Footer with user */}</Navbar.Section>
-                </Navbar>
-
-                <Box w={'40vw'} ref={ref}>
-                    <ScrollArea type="never" bg={theme.colors.gray[8]} h={'50vh'} sx={{
-                        borderTopRightRadius: 10,
-                    }}
-                        viewportRef={viewport}
+            <Center>
+                <Box w={'80vw'} sx={{
+                    display: 'flex', alignItems: 'center',
+                    boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);',
+                }}>
+                    <Navbar height={height} p="xs" width={{ base: '40vw' }} bg={theme.colors.gray[4]}
+                        sx={{ borderTopLeftRadius: 10 }}
                     >
-                        <>
-                            {
-                                submittedData.map((value, index) => {
-                                    return (
-                                        <Flex key={index} mr={8} ml={value.isOtherUser ? 8 : 0} justify={value.isOtherUser ? 'normal' : "flex-end"} mb={8}>
-                                            <Paper shadow="xs" p="sm" withBorder sx={{ display: 'flex', alignItems: 'center' }} radius={8}>
-                                                <Text sx={{ wordWrap: 'break-word' }} color='dark' w={width / 3}>{value.text}</Text>
+                        <Navbar.Section mt="xs" >
+                            <Stack align='center'>
+                                <Box>Contact List</Box>
+
+                            </Stack>
+                        </Navbar.Section>
+
+                        <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs" type='never'>
+                            {/* <Stack align='center'>
+                                {
+                                    submittedData.map((value, index) => {
+                                        return (
+                                            <Paper key={index} w={'35vw'} shadow="xs" p="sm" withBorder sx={{ display: 'flex', alignItems: 'center' }} radius={8}>
+                                                <Text sx={{ wordWrap: 'break-word' }} color='dark'>{value.text}</Text>
                                             </Paper>
+                                        )
+                                    })
+                                }
+                            </Stack> */}
+                        </Navbar.Section>
+
+                        {/* <Navbar.Section>Footer with user</Navbar.Section> */}
+                    </Navbar>
+
+                    <Box w={'40vw'} ref={ref}>
+                        <ScrollArea type="never" bg={theme.colors.gray[8]} h={'50vh'} sx={{
+                            borderTopRightRadius: 10,
+                        }}
+                            viewportRef={viewport}
+                        >
+                            <>
+                                {
+                                    submittedData.map((value, index) => {
+                                        return (
+                                            <Flex key={index} mr={8} ml={value.isOtherUser ? 8 : 0} justify={value.isOtherUser ? 'normal' : "flex-end"} mb={8}>
+                                                <Paper shadow="xs" p="sm" withBorder sx={{ display: 'flex', alignItems: 'center' }} radius={8}>
+                                                    <Text sx={{ wordWrap: 'break-word' }} color='dark' w={width / 3}>{value.text}</Text>
+                                                </Paper>
+                                            </Flex>
+                                        )
+                                    })
+                                }
+                            </>
+
+                        </ScrollArea>
+                        <Box p={10} bg={theme.colors.gray[6]}>
+                            <InputComponent
+                                name={'text'}
+                                control={control}
+                                inputProps={{
+                                    placeholder: 'Comment....',
+                                    onKeyDown: getHotkeyHandler([
+                                        // @ts-ignore
+                                        ['Enter', handleSubmit(onSubmit)]
+                                    ]),
+                                    rightSection:
+                                        <Flex >
+                                            <IconSend size="1rem" style={{ display: 'block', opacity: 0.5, color: theme.colors.gray[6] }} />
                                         </Flex>
-                                    )
-                                })
-                            }
-                        </>
-
-                    </ScrollArea>
-                    <Box p={10} bg={theme.colors.gray[6]}>
-                        <InputComponent
-                            name={'text'}
-                            control={control}
-                            inputProps={{
-                                placeholder: 'Comment....',
-                                onKeyDown: getHotkeyHandler([
-                                    // @ts-ignore
-                                    ['Enter', handleSubmit(onSubmit)]
-                                ]),
-                                rightSection:
-                                    <Flex >
-                                        <IconSend size="1rem" style={{ display: 'block', opacity: 0.5, color: theme.colors.gray[6] }} />
-                                    </Flex>
 
 
-                            }}
-                        />
+                                }}
+                            />
+                        </Box>
                     </Box>
                 </Box>
-            </Center >
+            </Center>
 
 
         </>

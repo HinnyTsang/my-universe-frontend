@@ -1,79 +1,71 @@
-import { AppShell, Navbar, Header } from '@mantine/core';
 import { NavBarTemp } from '@/navbar/NavBarTemp'
-import { Box, Button, Center, Divider, Flex, Paper, Textarea, Text, useMantineTheme, ScrollArea, Tooltip, Stack, Input, Grid } from '@mantine/core'
-import { getHotkeyHandler, useElementSize, useHotkeys, useScrollIntoView, useWindowScroll } from '@mantine/hooks'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { InputComponent } from '@/components/InputComponent'
-import { IconAlertCircle, IconSend } from '@tabler/icons-react'
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from "yup";
-import { InputController } from '@/controllers/InputController'
-import { log } from 'console'
+import { Box, Center, Divider, Paper, useMantineTheme, Navbar, Switch, } from '@mantine/core'
+import { useElementSize, } from '@mantine/hooks'
+import React, { useCallback } from 'react'
+import { useUserStore } from '@/hooks/useUserSore'
+import { ChatRoomProps } from '@/components/ChatRoom/ChatRoom'
 
 
-const schema = yup.object({
-    text: yup.string().required(),
-}).required();
-type FormData = yup.InferType<typeof schema>;
-export default function Layout() {
+interface Props {
+    ContactList: React.FC
+    ChatRoom: React.FC<ChatRoomProps>
+}
+
+
+const SwitchUser = () => {
+    const { isOtherUser, setIsOtherUser } = useUserStore()
+    const handlerSwitchUser = useCallback(() => {
+        setIsOtherUser(!isOtherUser)
+    }, [isOtherUser])
+    return (
+        <Switch
+            label="Act as other user"
+            mb={20}
+            onChange={handlerSwitchUser}
+        />
+    )
+}
+
+const totalWidth = 80
+const chatRoomWidth = 50
+const contactWidth = totalWidth - chatRoomWidth
+const Layout = ({ ContactList, ChatRoom }: Props) => {
     const { ref, width, height } = useElementSize();
-
     const theme = useMantineTheme();
 
-    const viewport = useRef<HTMLDivElement>(null);
-    const scrollToBottom = () => {
-        //@ts-ignore
-        // viewport.current.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' });
-    }
-    const [scrollPosition, onScrollPositionChange] = useState({ x: 0, y: 0 });
-    const [submittedData, setSubmittedData] = useState<FormData[]>([]);
-    const { handleSubmit, control, resetField } = useForm<FormData>({
-        resolver: yupResolver(schema),
-        defaultValues: {
-            text: "",
-        },
-    });
-    const handleReset = useCallback(() =>
-        resetField("text"), []
-    )
-    const onSubmit = useCallback((data: FormData) => {
-        const obj = {
-            text: data.text
-        }
-        console.log(obj);
-
-        setSubmittedData([...submittedData, obj]);
-        handleReset()
-    }, [submittedData])
-
-
-    useHotkeys([
-        // @ts-ignore
-        ['Enter', handleSubmit(onSubmit)]
-
-    ]);
-
-    useEffect(() => {
-        scrollToBottom()
-    }, [submittedData])
 
     return (
-        <AppShell
-            padding="md"
-            navbar={<Navbar width={{ base: 300 }} height={'100vh'} p="xs">
-                {/* Navbar content */}
-            </Navbar>}
-            header={<Header height={60} p="xs">{
+        <>
+            <NavBarTemp />
+            <Divider mb={10} />
+            <Center>
+                <SwitchUser />
+            </Center>
+            <Center>
+                <Paper w={`${totalWidth}vw`}
+                    // withBorder
+                    // shadow='xl'
+                    sx={{
+                        display: 'flex', alignItems: 'center',
+                        borderTopLeftRadius: 10,
+                        boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);',
+                    }}>
+                    <Navbar height={height} p="xs" width={{ base: `${contactWidth}vw` }} bg={theme.colors.gray[4]}
+                        sx={{ borderTopLeftRadius: 10 }}
+                    >
+                        <ContactList />
+
+                    </Navbar>
+                    <Box w={`${chatRoomWidth}vw`} ref={ref}>
+                        <ChatRoom width={width} />
+                    </Box>
+                </Paper>
+            </Center>
 
 
-            }</Header>}
-            styles={(theme) => ({
-                main: { backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0] },
-            })}
-        >
-            {/* Your application here */}
+        </>
+    )
 
-        </AppShell>
-    );
 }
+
+export default Layout;
