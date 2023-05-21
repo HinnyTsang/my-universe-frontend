@@ -6,6 +6,15 @@ interface UserState {
 
     uid: string | undefined
     setUid: (uid: string) => void
+
+    newMessage: NewMessage
+    setNewMessage: (newMessage: NewMessage) => void
+
+}
+
+interface NewMessage {
+    id: string,
+    isNewMessage: boolean
 }
 
 export const useUserStore = create<UserState>()((set, get) => ({
@@ -16,6 +25,14 @@ export const useUserStore = create<UserState>()((set, get) => ({
     setUid: (value: string) => {
         set({ uid: value })
         // ,console.log(get().uid);
-    }
+    },
+
+    newMessage: {
+        id: "",
+        isNewMessage: false
+    },
+
+    setNewMessage: (value: NewMessage) => set({ newMessage: value })
+
 
 }))

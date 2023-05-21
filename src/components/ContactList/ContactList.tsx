@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import ContactCard, { ContactData } from '../ContactCard'
 import man from '../../assets/man.png'
 import woman from '../../assets/woman.png'
@@ -6,48 +6,72 @@ import { Box, Input, Navbar, ScrollArea, Stack } from '@mantine/core'
 import { HoverEnlarge } from '../animated/HoverEnlarge'
 import { InputComponent } from '../InputComponent'
 import { v4 as uuidv4 } from 'uuid';
-
+import { useUserStore } from '@/hooks/useUserSore'
+import _ from 'lodash';
 
 const demoData: ContactData[] = [
     {
         id: uuidv4().toString(),
         name: 'Tom',
-        icon: man
+        icon: man,
+        // isNewMessage: false
     },
     {
         id: uuidv4().toString(),
         name: 'Mary',
-        icon: woman
+        icon: woman,
+        // isNewMessage: false
     },
     {
         id: uuidv4().toString(),
-        name: 'Tom',
-        icon: man
+        name: 'Andy',
+        icon: man,
+        // isNewMessage: false
     },
     {
         id: uuidv4().toString(),
-        name: 'Mary',
-        icon: woman
+        name: 'Sin',
+        icon: woman,
+        // isNewMessage: false
     },
     {
         id: uuidv4().toString(),
-        name: 'Tom',
-        icon: man
+        name: 'Ant',
+        icon: man,
+        // isNewMessage: false
     },
     {
         id: uuidv4().toString(),
-        name: 'Mary',
-        icon: woman
+        name: 'Mandy',
+        icon: woman,
+        // isNewMessage: false
     },
     {
         id: uuidv4().toString(),
-        name: 'Tom',
-        icon: man
+        name: 'Gor',
+        icon: man,
+        // isNewMessage: false
     },
 
 ]
-const ContactList = () => {
 
+const sortContentList = () => {
+    const { newMessage } = useUserStore()
+    const myFunction = useCallback(() => {
+        if (newMessage.id !== "") {
+            return demoData.sort(function (x, y) { return x.id === newMessage.id ? -1 : y.id === newMessage.id ? 1 : 0; })
+        } else {
+            return demoData
+        }
+
+    }, [newMessage])
+
+    return myFunction()
+
+}
+
+
+const ContactList = () => {
 
     return (
         <>
@@ -59,8 +83,8 @@ const ContactList = () => {
             < Navbar.Section grow component={ScrollArea} type='never' >
 
                 {
-                    demoData && demoData.map((value, index) =>
-                        <HoverEnlarge key={index}>
+                    demoData && sortContentList().map((value, _) =>
+                        <HoverEnlarge key={value.id}>
                             <ContactCard contactData={value} />
                         </HoverEnlarge>
                     )

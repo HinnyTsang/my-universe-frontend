@@ -25,7 +25,8 @@ const schema = yup.object({
 type FormData = yup.InferType<typeof schema>;
 
 const ChatRoomDetail = () => {
-    const { isOtherUser, uid } = useUserStore()
+
+    const { isOtherUser, setNewMessage, newMessage } = useUserStore()
     const { width } = useStyleStore()
     const router = useRouter();
 
@@ -49,12 +50,11 @@ const ChatRoomDetail = () => {
             isOtherUser: isOtherUser
         }
 
-        // console.log(obj);
+        newMessage.id !== routeUid && setNewMessage({ id: routeUid, isNewMessage: true })
 
         setSubmittedData([...submittedData, obj]);
         resetField("text")
     }, [submittedData, isOtherUser, routeUid])
-
 
 
     useHotkeys([
@@ -62,6 +62,7 @@ const ChatRoomDetail = () => {
         ['Enter', handleSubmit(onSubmit)]
 
     ]);
+
 
     // ----------------------------------------------
     //Purpose: Every new message scroll to the bottom
@@ -105,10 +106,10 @@ const ChatRoomDetail = () => {
                 borderTopRightRadius: 10,
             }} viewportRef={viewport}
             >
-                <>
+                <Box mt={8}>
                     {/* <Text color='white'>{router.query.chatRoomPage}</Text> */}
                     {mapChatData}
-                </>
+                </Box>
 
             </ScrollArea>
             <Box p={10} bg={theme.colors.gray[6]}>
