@@ -1,31 +1,36 @@
-import { Box, Flex, Paper, ScrollArea, Text, useMantineTheme } from '@mantine/core'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { InputComponent } from '../InputComponent'
-import { IconSend } from '@tabler/icons-react'
-import * as yup from "yup";
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
-import { getHotkeyHandler, useHotkeys } from '@mantine/hooks';
 import { useUserStore } from '@/hooks/useUserSore';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Flex, Paper, ScrollArea, useMantineTheme, Text, Box } from '@mantine/core'
+import { getHotkeyHandler, useHotkeys } from '@mantine/hooks';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form';
+import * as yup from "yup";
+import { InputComponent } from '../../components/InputComponent';
+import { IconSend } from '@tabler/icons-react';
+import { useStyleStore } from '@/hooks/useStyleStore';
+import { useRouter } from 'next/router';
 
 
+interface ChatData {
+    text: string,
+    isOtherUser: boolean
+    uid: string
+}
+export interface ChatRoomProps {
+    width: number
+}
 const schema = yup.object({
     text: yup.string().required(),
 }).required();
 type FormData = yup.InferType<typeof schema>;
 
-interface ChatData {
-    text: string,
-    isOtherUser: boolean
-}
-export interface ChatRoomProps {
-    width: number
-}
+const ChatRoomDetail = () => {
+    const { isOtherUser, uid } = useUserStore()
+    const { width } = useStyleStore()
+    const router = useRouter();
 
+    const routeUid = useMemo(() => typeof router.query.chatRoomPage === 'string' ? router.query.chatRoomPage : '', [router.query.chatRoomPage])
 
-
-const ChatRoom = ({ width }: ChatRoomProps) => {
-    const { isOtherUser } = useUserStore()
     const theme = useMantineTheme();
     const [submittedData, setSubmittedData] = useState<ChatData[]>([]);
     const { handleSubmit, control, resetField } = useForm<FormData>({
@@ -39,15 +44,16 @@ const ChatRoom = ({ width }: ChatRoomProps) => {
 
     const onSubmit = useCallback((data: FormData) => {
         const obj: ChatData = {
+            uid: routeUid,
             text: data.text,
             isOtherUser: isOtherUser
         }
 
-        console.log(obj);
+        // console.log(obj);
 
         setSubmittedData([...submittedData, obj]);
         resetField("text")
-    }, [submittedData, isOtherUser])
+    }, [submittedData, isOtherUser, routeUid])
 
 
 
@@ -62,29 +68,35 @@ const ChatRoom = ({ width }: ChatRoomProps) => {
     const viewport = useRef<HTMLDivElement>(null);
     const scrollToBottom = () => {
         //@ts-ignore
-        viewport.current.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' });
+        viewport.current?.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' });
     }
 
     useEffect(() => {
         scrollToBottom()
-    }, [submittedData])
+    }, [submittedData, routeUid])
     //---------------------------------------------
     useEffect(() => {
         inputRef.current?.focus()
-    }, [isOtherUser])
+    }, [isOtherUser, routeUid])
 
     const mapChatData = useMemo(() =>
         submittedData && submittedData.map((value, index) => {
-            return (
-                <Flex key={index} mr={8} ml={value.isOtherUser ? 8 : 0} justify={value.isOtherUser ? 'normal' : "flex-end"} mb={8}>
-                    <Paper shadow="xs" p="sm" withBorder sx={{ display: 'flex', alignItems: 'center' }} radius={8}>
-                        <Text sx={{ wordWrap: 'break-word' }} color='dark' w={width / 3}>{value.text}</Text>
-                    </Paper>
-                </Flex>
-            )
+            if (value.uid === routeUid) {
+                return (
+
+                    <Flex key={index} mr={8} ml={value.isOtherUser ? 8 : 0} justify={value.isOtherUser ? 'normal' : "flex-end"} mb={8}>
+                        <Paper shadow="xs" p="sm" withBorder sx={{ display: 'flex', alignItems: 'center' }} radius={8}>
+                            <Text sx={{ wordWrap: 'break-word' }} color='dark' w={width / 3}>{value.text}</Text>
+                        </Paper>
+                    </Flex>
+                )
+
+            }
         })
 
-        , [submittedData, width])
+        , [submittedData, width, routeUid])
+
+
 
 
     return (
@@ -94,6 +106,7 @@ const ChatRoom = ({ width }: ChatRoomProps) => {
             }} viewportRef={viewport}
             >
                 <>
+                    {/* <Text color='white'>{router.query.chatRoomPage}</Text> */}
                     {mapChatData}
                 </>
 
@@ -114,8 +127,9 @@ const ChatRoom = ({ width }: ChatRoomProps) => {
                         </Flex>
                     }} />
             </Box>
+
         </>
     )
 }
 
-export default ChatRoom
+export default ChatRoomDetail;
